@@ -1,0 +1,95 @@
+---
+title: "Data Cleanup"
+author: "Robert Hensley"
+date: "March 6, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries}
+library(jsonlite)
+library(tidyverse)
+library(httr)
+library(yelpr)
+```
+
+## JSON Attempt
+
+```{r}
+businesses <- stream_in(file("data/business.json"))
+```
+
+```{r}
+head(businesses)
+businesses %>% filter(city == "San Luis Obispo")
+```
+
+It turns out that the open dataset provided by Yelp does not include San Luis Obispo Establishments. Looks like we should use the Yelp API!
+
+
+## Yelp Fusion API
+
+- Yelp API for R: https://github.com/OmaymaS/yelpr
+- Maybe make the key less visible ... 
+
+```{r}
+key <- "pxKTGs3uKpDZXQSo1nKmJKSPycfRqixcudXpKm8oAuVRNEjx_MVUhBryPP8Gg5MgPn6Cl28RO6dfRNFrh3jNQVdcDxu-uNI5IUT7-phwJPiOW2L2D2cRrEtIXJyAXHYx"
+```
+
+Example of 10 chinese restaurants in New York:
+
+```{r}
+# search businesses with keyword 'chinese' in 'New York'
+business_ny <- business_search(api_key = key,
+                location = 'New York',
+                term = "chinese",
+                limit = 10)
+
+```
+
+## San Luis Obispo Data
+
+```{r}
+business_SLO <- as.data.frame(business_search(api_key = key, location = 'San Luis Obispo', limit = 50))
+```
+
+```{r}
+business_SLO
+```
+
+It looks like the API limit of restaurants to view is 50 per call. RIP
+
+If only there were a way to offset the data...
+
+## Collecting Offset Data
+
+Notice that the total value of the dataframe is 340. That means that there are 340 businesses in San Luis Obispo with Yelp reviews.  This semi-matches a the number of results in a blank search on Yelp with the city set to San Luis Obispo. 327 results show up on a Yelp Search (assuming the remaining 13 are closed establishments). 
+
+```{r}
+businesses <- as.data.frame(business_search(api_key = key, location = 'San Luis Obispo', limit = 50))
+append <- as.data.frame(business_search(api_key = key, location = 'San Luis Obispo', limit = 50, offset = 50))
+row.names(append) <- as.numeric(row.names(append)) + 50
+rbind(businesses, append)
+```
+
+```{r}
+businesses <- as.data.frame(business_search(api_key = key, location = 'San Luis Obispo', limit = 50))
+
+num <- (businesses %>% select(total))[1,1]
+my_offset <- 50 # max number of businesses per API call
+
+while(my_offset < num) {
+  append <- as.data.frame(business_search(api_key = key, location = 'San Luis Obispo', limit = 50, offset = my_offset))
+  # change rowname index to allow binding
+  row.names(append) <- as.numeric(row.names(append)) + my_offset
+  rbind(businesses, append)
+  my_offset = my_offset + 50
+}
+```
+
+```{r}
+glimpse(append)
+```
