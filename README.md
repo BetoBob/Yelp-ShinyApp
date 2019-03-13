@@ -9,3 +9,4 @@ Using Leaflet and the open yelp dataset, we plan to geographically analyze yelp 
 - https://rstudio.github.io/leaflet/
 - https://www.yelp.com/dataset/documentation/main
 - https://github.com/OmaymaS/yelpr
+- https://leafletjs.com/reference-1.4.0.html (JS reference for the leaflet API)

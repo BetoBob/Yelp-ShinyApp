@@ -142,7 +142,7 @@ get_businesses <- function(my_location) {
   
   while(my_offset < num) {
     # create data to append
-    append <- business_search(api_key = key, location = 'San Luis Obispo', limit = 50, offset = my_offset)
+    append <- business_search(api_key = key, location = my_location, limit = 50, offset = my_offset)
     a <- as.data.frame(append)
     a["latitude"]  <- append[["businesses"]][["coordinates"]][["latitude"]]
     a["longitude"] <- append[["businesses"]][["coordinates"]][["longitude"]]
@@ -168,10 +168,10 @@ businesses_SLO <- get_businesses("San Luis Obispo")
 ```{r}
 head(businesses_SLO)
 nrow(businesses_SLO)
+
+businesses_SLO %>% 
+    toJSON() %>%
+    write_lines("businesses_SLO.json")
 ```
 
-Success! Now to store this data as a JSON file:
-
-```{r}
-toJSON(businesses_SLO)
-```
+Success! A future goal would be to speed up the data cleaning process to use on cities with larger datasets.
