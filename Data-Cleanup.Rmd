@@ -13,6 +13,9 @@ knitr::opts_chunk$set(echo = TRUE)
 library(jsonlite)
 library(tidyverse)
 library(yelpr)
+
+key <- "pxKTGs3uKpDZXQSo1nKmJKSPycfRqixcudXpKm8oAuVRNEjx_MVUhBryPP8Gg5MgPn6Cl28RO6dfRNFrh3jNQVdcDxu-uNI5IUT7-phwJPiOW2L2D2cRrEtIXJyAXHYx"
+
 ```
 
 ## JSON Attempt
@@ -175,3 +178,5 @@ businesses_SLO %>%
 ```
 
 Success! A future goal would be to speed up the data cleaning process to use on cities with larger datasets.
+
+
