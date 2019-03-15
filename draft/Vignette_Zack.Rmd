@@ -1,0 +1,116 @@
+---
+title: "Vignette_Zack"
+output: html_document
+fontsize: 40pt
+---
+
+```{r setup, include=FALSE, echo = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(leaflet)
+library(tidyverse)
+library(htmltools)
+library(htmlwidgets)
+```
+
+##Introduction to Leaflet
+Leaflet is used for plotting geographical data that cannot be visualized using typical statistical models.
+ 
+To begin using the package, one must cretae a map widget. Widgets are modular and components can be added using simple api calls.
+The two most basic functions are addTiles() and addMarkers()
+
+* addPolygons(): Attach the default streetmap image to your map
+
+* addMarkers(): Place important marker(s) on the map by providing longitude and latitude coordinates
+
+```{r}
+myMap <- leaflet() %>%
+  addTiles() %>% 
+  addMarkers(lng = -120.66, lat = 35.3, popup="Cal Poly!")
+myMap
+```
+
+##Markers, Popups, and Labels
+(I should probably have an example of importing a dataframe with long and lat here)
+
+In some cases, you might want to use different icons to differentiate types of locations. For example, we could use a hamburger icon to signify American restaurants and a Mexican flag to Mexican restaurants. Fortunately, the addMarkers() function has a parameter for an icon. Creating an icon requires the use of the makeIcon() function.
+
+* makeIcon(): Given an image URL and transform parameters, create an icon for use as a marker.
+
+(Notice that we are using an ifelse() block to differentiate between the two different markers before assigning them to restaurants)
+```{r}
+fastFood <- data.frame(
+  long = c(-120.6606, -120.6433, -120.6625, -120.6641, -120.6571, -120.6666, -120.6711),
+  lat = c(35.2811, 35.2496, 35.2791, 35.2879, 35.2846, 35.2781, 35.269),
+  name = c("Firestone Grill", "Carl's Junior", "Eureka!", "Jack in the Box",
+           "Taqueria Santa Cruz", "La Esquina Taqueria", "Taco King"),
+  type = c("USA", "USA", "USA", "USA", "MEX", "MEX", "MEX")
+  ) 
+
+foodIcon <- makeIcon(
+  iconUrl = 
+    ifelse(fastFood$type == "USA", 
+    "https://freeiconshop.com/wp-content/uploads/edd/burger-flat.png",
+    "https://cdn.countryflags.com/thumbs/mexico/flag-round-250.png"),
+  iconWidth = 38, iconHeight = 38)
+
+leaflet(data = fastFood) %>% addTiles() %>%
+  addMarkers(~long, ~lat, icon = foodIcon, label = ~name)
+
+
+```
+
+There may also be situations were we have too many icons to display on the map. In that case, it may be beneficial to turn on marker clusters in the addMarkers() function.
+(Zoom in to see how the clustering works)
+```{r}
+leaflet(data = fastFood) %>% addTiles() %>%
+  addMarkers(~long, ~lat, icon = foodIcon, label = ~name, clusterOptions = markerClusterOptions())
+```
+
+You may have noticed that when hovering over an icon, a text box with the restaurant name appears. This is an example of a "label," one of two text containers that can be attached to an icon.
+
+* label - A HTML text box that hovers over an icon when moused over (can also permanently hover regardless of mouse position)
+* popup - A HTML text box that hovers only when clicked on
+
+```{r}
+leaflet() %>% addTiles() %>%
+  addMarkers(lng = -120.6721, lat = 35.2937, popup = "SloDoCo") %>% 
+  addMarkers(lng = -120.6699, lat = 35.2947, label = "Blaze Pizza")
+```
+
+##Toggling Layers
+Sometimes you may want to hide certain data in order to single out certain elements of your map. When creating a leaflet map, all you need is specify a group for your markers. Then, we call the "addLayersControl()" function.
+
+* addLayersControl(): Specify which groups to toggle. The "options" parameter determines if the layers controller should initially appear collapsed. 
+
+```{r}
+leaflet(data = fastFood) %>% addTiles() %>%
+  addMarkers(~long, ~lat, icon = foodIcon, label = ~name, group = ~type) %>% 
+  addLayersControl(
+    overlayGroups = c("USA", "MEX"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+```
+
+##Additional Features
+There are a few tools provided in the Leaflet library that can help enhance your maps.
+
+* addMeasure(): A distance tool. Click two points on the map and it will tell you the real-world distance between them.
+
+* addMiniMap(): A globe minimapl. Useful when showing data for large distances.
+
+* addEasyButton(): Two useful buttons. The globe button will zoom out the map to its furthest point. The crosshair button will zoom in on the user's real-world location.
+
+```{r}
+leaflet(data = fastFood) %>% addTiles() %>%
+  addMarkers(~long, ~lat, icon = foodIcon, label = ~name) %>% 
+  addMeasure() %>% 
+  addMiniMap(
+    tiles = providers$Esri.WorldStreetMap,
+    toggleDisplay = TRUE) %>% 
+  addEasyButton(easyButton(
+    icon="fa-globe", title="Zoom to Level 1",
+    onClick=JS("function(btn, map){ map.setZoom(1); }"))) %>%
+  addEasyButton(easyButton(
+    icon="fa-crosshairs", title="Locate Me",
+    onClick=JS("function(btn, map){ map.locate({setView: true}); }")))
+```

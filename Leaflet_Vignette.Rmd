@@ -1,0 +1,263 @@
+---
+title: "Leaflet Vignette"
+author: "Robert Hensley and Zack Ragozzino"
+date: "March 15, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, echo=FALSE, warning=FALSE, results='hide'}
+
+library(tidyverse)
+library(leaflet)
+
+# Yelp API Libraries
+library(jsonlite)
+library(yelpr)
+
+# Shape Libraries
+library(sf)
+library(rgdal)
+library(geometry)
+
+Yelp_SLO <- fromJSON(file("data/businesses_SLO.json"))
+key <- "pxKTGs3uKpDZXQSo1nKmJKSPycfRqixcudXpKm8oAuVRNEjx_MVUhBryPP8Gg5MgPn6Cl28RO6dfRNFrh3jNQVdcDxu-uNI5IUT7-phwJPiOW2L2D2cRrEtIXJyAXHYx"
+```
+
+## Introduction
+
+Leaflet is used for plotting geographical data that cannot be visualized using typical statistical models.
+ 
+To begin using the package, one must cretae a map widget. Widgets are modular and components can be added using simple API calls.
+The two most basic functions are addTiles() and addMarkers()
+
+* addTitles(): Attach the default streetmap image to your map
+
+* addMarkers(): Place important marker(s) on the map by providing longitude and latitude coordinates
+
+```{r}
+myMap <- leaflet() %>%
+  addTiles() %>% 
+  addMarkers(lng = -120.66, lat = 35.3, popup="Cal Poly!")
+myMap
+```
+
+## The Dataset
+
+To demonstrate leaflet's features, we will be using Yelp data of San Luis Obispo businesses. This information was collected from the Yelp Fusion API using an R library called "yelpr". Below is a sample API call for accessing businesses by location.
+
+```{r}
+business_SLO <- as.data.frame(business_search(api_key = key, location = 'San Luis Obispo', limit = 50))
+glimpse(business_SLO)
+```
+
+Because the Yelp API provides a maximum of 50 businesses per call and the data was in a JSON layered format, the dataset for San Luis Obispo businesses was cleaned and concatinated into one large JSON file (see Data-Cleanup.Rmd for more implementation details). Each business location in the dataset is mapped below:
+
+```{r SLO_Yelp_Plots}
+leaflet(data = Yelp_SLO, options = leafletOptions(minZoom = 10, maxZoom = 20)) %>%
+  addMarkers(~longitude, ~latitude, popup = ~as.character(businesses.name), icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25))) %>%
+  setView(Yelp_SLO$region.center.longitude[1], Yelp_SLO$region.center.latitude[1], zoom = 12) %>%
+  setMaxBounds(Yelp_SLO$region.center.longitude[1] - 0.25,
+               Yelp_SLO$region.center.latitude[1] - 0.25, 
+               Yelp_SLO$region.center.longitude[1] + 0.25, 
+               Yelp_SLO$region.center.latitude[1] + 0.25) %>%
+  addTiles()
+```
+
+## Map Widget
+
+Let's first observe the main method of the library, "leaflet". The leaflet method creates a map widget using htmlwidgets for functionality and [OpenStreetMap](https://www.openstreetmap.org/#map=4/38.01/-95.84) as a source of geographical data. By default, the leaflet method returns a map widget of the world. 
+
+```{r empty_map}
+leaflet() %>% addTiles()
+```
+
+Attributes of the leaflet method change the shape of the widget and set certin bounderies on the map. In the example widget below, options are set in the leaflet method to restrict the map zoom to certain levels. The minimum zoom is set to 12 because we are only interested in observing businesses in the San Luis Obispo area. Additionally, helper functions can be used to further specify geographical restrictions in the widget. In the example below, the view is set to the center of San Luis Obispo using setView and geographical bounderies are set to be 0.25 degrees away from San Luis Obispo's central point with setMaxBounds. 
+
+```{r bound_map}
+leaflet(options = leafletOptions(minZoom = 10, maxZoom = 20), height = 500, width = 500) %>%
+  setView(Yelp_SLO$region.center.longitude[1], Yelp_SLO$region.center.latitude[1], zoom = 12) %>%
+  setMaxBounds(Yelp_SLO$region.center.longitude[1] - 0.25, 
+               Yelp_SLO$region.center.latitude[1] - 0.25, 
+               Yelp_SLO$region.center.longitude[1] + 0.25, 
+               Yelp_SLO$region.center.latitude[1] + 0.25) %>%
+  addTiles()
+```
+
+## Markers, Popups, and Labels 
+
+In some cases, you might want to use different icons to differentiate types of locations. For example, we could use a hamburger icon to signify American restaurants and a Mexican flag to Mexican restaurants. Fortunately, the addMarkers() function has a parameter for an icon. Creating an icon requires the use of the makeIcon() function.
+
+* makeIcon(): Given an image URL and transform parameters, create an icon for use as a marker.
+
+(Notice that we are using an ifelse() block to differentiate between the two different markers before assigning them to restaurants)
+
+```{r}
+fastFood <- data.frame(
+  long = c(-120.6606, -120.6433, -120.6625, -120.6641, -120.6571, -120.6666, -120.6711),
+  lat = c(35.2811, 35.2496, 35.2791, 35.2879, 35.2846, 35.2781, 35.269),
+  name = c("Firestone Grill", "Carl's Junior", "Eureka!", "Jack in the Box",
+           "Taqueria Santa Cruz", "La Esquina Taqueria", "Taco King"),
+  type = c("USA", "USA", "USA", "USA", "MEX", "MEX", "MEX")
+  ) 
+
+foodIcon <- makeIcon(
+  iconUrl = 
+    ifelse(fastFood$type == "USA", 
+    "https://freeiconshop.com/wp-content/uploads/edd/burger-flat.png",
+    "https://cdn.countryflags.com/thumbs/mexico/flag-round-250.png"),
+  iconWidth = 38, iconHeight = 38)
+
+leaflet(data = fastFood) %>% addTiles() %>%
+  addMarkers(~long, ~lat, icon = foodIcon, label = ~name)
+
+
+```
+
+There may also be situations were we have too many icons to display on the map. In that case, it may be beneficial to turn on marker clusters in the addMarkers() function.
+(Zoom in to see how the clustering works)
+```{r}
+leaflet(data = fastFood) %>% addTiles() %>%
+  addMarkers(~long, ~lat, icon = foodIcon, label = ~name, clusterOptions = markerClusterOptions())
+```
+
+You may have noticed that when hovering over an icon, a text box with the restaurant name appears. This is an example of a "label," one of two text containers that can be attached to an icon.
+
+* label - A HTML text box that hovers over an icon when moused over (can also permanently hover regardless of mouse position)
+* popup - A HTML text box that hovers only when clicked on
+
+```{r}
+leaflet() %>% addTiles() %>%
+  addMarkers(lng = -120.6721, lat = 35.2937, popup = "SloDoCo") %>% 
+  addMarkers(lng = -120.6699, lat = 35.2947, label = "Blaze Pizza")
+```
+
+## Toggling Layers
+Sometimes you may want to hide certain data in order to single out certain elements of your map. When creating a leaflet map, all you need is specify a group for your markers. Then, we call the "addLayersControl()" function.
+
+* addLayersControl(): Specify which groups to toggle. The "options" parameter determines if the layers controller should initially appear collapsed. 
+
+```{r}
+leaflet(data = fastFood) %>% addTiles() %>%
+  addMarkers(~long, ~lat, icon = foodIcon, label = ~name, group = ~type) %>% 
+  addLayersControl(
+    overlayGroups = c("USA", "MEX"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+```
+
+## Shapes
+
+Shapes are an intuitive way to represent geographical regions and bounderies on leaflet maps. The first argument in the leaflet method reads several types of polygon and line objects. These shapes are added to the leaflet map using the addPolygons method, which includes several options to change the color, opacity and even interacitivity of the shapes.
+
+In the example below, I used shape data from the County of San Luis Obispo's open geographical dataset. This particular dataset maps the bounderies of the county's [school districts](http://opendata.slocounty.ca.gov/datasets/8ab1e8d0ad7d464e91ddf82c8ea3c58d_81?geometry=-124.601%2C34.612%2C-116.306%2C36.179). The shape file (.shp) is read using the st_read method, a part of the sf libray for polygon data. 
+
+Let's review some of the parameters of the addPolygons method:
+<li> the first two paramters, color and weight, define aspects of the shape's border </li>
+<li> smoothfactor sets the precision of how the regions are displayed. A small smooth factor means more accurately displayed shapes at the cost of performance </li>
+<li> the opacity variable sets the opacity of the borders where as the fillOpacity sets the opacity of the shape's content (its fill) </li>
+<li> fillColor uses a colorQuantile method to map various shades of green to each region (uniquely identified by OBJECTID) </li>
+<li> popup is a message displayed when the user clicks a region (in this case, displaying the name of the School District) </li>
+<br>
+
+
+```{r school_districts}
+school_districts <- st_read("data/School_Districts/School_Districts.shp") %>%
+  filter(OBJECTID != 10) # removes a layer that covers most of the county
+
+school_districts %>% 
+  leaflet() %>%
+  addPolygons(color = "orange", weight = 1, smoothFactor = 0.5,
+    opacity = 1.0, fillOpacity = 0.75,
+    fillColor = ~colorQuantile("Reds", OBJECTID)(OBJECTID),
+    highlightOptions = highlightOptions(color = "white", weight = 2),
+    popup = ~name) %>%
+  addTiles()
+```
+
+## Colors and Legends
+
+Colors can be used to convey more information about shape data. A color method is used to store this information. The four types of color mappings include:
+1. numeric: continuous numeric data (continuous)
+2. bin: for continuous numeric data using a set number of bins (discrete)
+3. quantile: for continuous numeric data using a percentage (discrete)
+4. factor: for categorical data
+
+The School district example uses a quantile color method to create unique colors for each districts, although the shade of the color does not explicitly convey any information. However in the examples below of San Luis Obispo zoning areas, a color factor method is used to differentiate each city zone (a categorical variable) and a colorNumeric method is used to differentiate the acreage of each zone (a continuous numeric variable). To show what each color represents, a legend can be added to the map using the addLegend method. 
+
+```{r zoning}
+zoning <- readOGR("data/Zoning_SLO.kml")
+
+pal <- colorFactor(
+  palette = "YlOrRd",
+  domain = zoning$generalZone
+)
+
+zoning %>% 
+  leaflet() %>%
+  addPolygons(weight = 1, smoothFactor = 0.5, color = ~pal(generalZone),
+    opacity = 1.0, fillOpacity = 0.6,
+    popup = ~generalZone) %>%
+  addLegend("bottomright", pal = pal, values = ~generalZone,
+    title = "San Luis Obispo Zones",
+    opacity = 1
+  ) %>%
+  addTiles()
+```
+
+```{r zoning_numeric}
+pal <- colorNumeric(
+  palette = "YlOrRd",
+  domain = zoning$ACRES
+)
+
+zoning %>% 
+  leaflet() %>%
+  addPolygons(weight = 1, smoothFactor = 0.5, color = ~pal(ACRES),
+    opacity = 1.0, fillOpacity = 0.6,
+    popup = ~ACRES)%>%
+  addLegend("bottomright", pal = pal, values = ~ACRES,
+    title = "Acres",
+    opacity = 1
+  ) %>%
+  addTiles()
+```
+
+##Additional Features
+There are a few tools provided in the Leaflet library that can help enhance your maps.
+
+* addMeasure(): A distance tool. Click two points on the map and it will tell you the real-world distance between them.
+
+* addMiniMap(): A globe minimapl. Useful when showing data for large distances.
+
+* addEasyButton(): Two useful buttons. The globe button will zoom out the map to its furthest point. The crosshair button will zoom in on the user's real-world location.
+
+```{r}
+leaflet(data = fastFood) %>% addTiles() %>%
+  addMarkers(~long, ~lat, icon = foodIcon, label = ~name) %>% 
+  addMeasure() %>% 
+  addMiniMap(
+    tiles = providers$Esri.WorldStreetMap,
+    toggleDisplay = TRUE) %>% 
+  addEasyButton(easyButton(
+    icon="fa-globe", title="Zoom to Level 1",
+    onClick=JS("function(btn, map){ map.setZoom(1); }"))) %>%
+  addEasyButton(easyButton(
+    icon="fa-crosshairs", title="Locate Me",
+    onClick=JS("function(btn, map){ map.locate({setView: true}); }")))
+```
+
+## Links
+
+- https://github.com/BetoBob/BetoBob.github.io
+- https://rstudio.github.io/leaflet/
+- https://www.yelp.com/dataset/documentation/main
+- https://github.com/OmaymaS/yelpr
+- https://leafletjs.com/reference-1.4.0.html (JS reference for the leaflet API)
+
+## Data
+- http://opendata.slocounty.ca.gov/ 
+- https://www.slocity.org/government/open-government/gis-mapping-division/download-gis-data

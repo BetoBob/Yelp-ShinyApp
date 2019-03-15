@@ -1,0 +1,152 @@
+---
+title: "Vignette-Bob"
+author: "Robert Hensley"
+date: "March 11, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, echo=FALSE, warning=FALSE, results="hide"}
+
+library(tidyverse)
+library(leaflet)
+
+# Yelp API Libraries
+library(jsonlite)
+library(yelpr)
+
+# Shape Libraries
+library(sf)
+
+Yelp_SLO <- fromJSON(file("businesses_SLO.json"))
+key <- "pxKTGs3uKpDZXQSo1nKmJKSPycfRqixcudXpKm8oAuVRNEjx_MVUhBryPP8Gg5MgPn6Cl28RO6dfRNFrh3jNQVdcDxu-uNI5IUT7-phwJPiOW2L2D2cRrEtIXJyAXHYx"
+```
+
+## Introduction
+
+Leaflet is used for plotting geographical data that cannot be visualized using typical statistical models.
+ 
+To begin using the package, one must cretae a map widget. Widgets are modular and components can be added using simple API calls.
+The two most basic functions are addTiles() and addMarkers()
+
+* addPolygons(): Attach the default streetmap image to your map
+
+* addMarkers(): Place important marker(s) on the map by providing longitude and latitude coordinates
+
+```{r}
+myMap <- leaflet() %>%
+  addTiles() %>% 
+  addMarkers(lng = -120.66, lat = 35.3, popup="Cal Poly!")
+myMap
+```
+
+## The Dataset
+
+To demonstrate leaflet's features, we will be using Yelp data of San Luis Obispo businesses. This information was collected from the Yelp Fusion API using an R library called "yelpr". Below is a sample API call for accessing businesses by location.
+
+```{r}
+business_SLO <- as.data.frame(business_search(api_key = key, location = 'San Luis Obispo', limit = 50))
+glimpse(business_SLO)
+```
+
+Because the Yelp API provides a maximum of 50 businesses per call and the data was in a JSON layered format, the dataset for San Luis Obispo businesses was cleaned and concatinated into one large JSON file (see Data-Cleanup.Rmd for more implementation details). Each business location in the dataset is mapped below:
+
+```{r SLO_Yelp_Plots}
+leaflet(data = Yelp_SLO, options = leafletOptions(minZoom = 10, maxZoom = 20)) %>%
+  addMarkers(~longitude, ~latitude, popup = ~as.character(businesses.name), icon = list(iconUrl = "red-map-marker.png", iconSize = c(25, 25))) %>%
+  setView(Yelp_SLO$region.center.longitude[1], Yelp_SLO$region.center.latitude[1], zoom = 12) %>%
+  setMaxBounds(Yelp_SLO$region.center.longitude[1] - 0.25,
+               Yelp_SLO$region.center.latitude[1] - 0.25, 
+               Yelp_SLO$region.center.longitude[1] + 0.25, 
+               Yelp_SLO$region.center.latitude[1] + 0.25) %>%
+  addTiles()
+```
+
+## Map Widget
+
+Let's first observe the main method of the library, "leaflet". The leaflet method creates a map widget using htmlwidgets for functionality and [OpenStreetMap](https://www.openstreetmap.org/#map=4/38.01/-95.84) as a source of geographical data. By default, the leaflet method returns a map widget of the world. 
+
+```{r empty_map}
+leaflet() %>% addTiles()
+```
+
+Attributes of the leaflet method change the shape of the widget and set certin bounderies on the map. In the example widget below, options are set in the leaflet method to restrict the map zoom to certain levels. The minimum zoom is set to 12 because we are only interested in observing businesses in the San Luis Obispo area. Additionally, helper functions can be used to further specify geographical restrictions in the widget. In the example below, the view is set to the center of San Luis Obispo using setView and geographical bounderies are set to be 0.25 degrees away from San Luis Obispo's central point with setMaxBounds. 
+
+```{r bound_map}
+leaflet(options = leafletOptions(minZoom = 10, maxZoom = 20), height = 500, width = 500) %>%
+  setView(Yelp_SLO$region.center.longitude[1], Yelp_SLO$region.center.latitude[1], zoom = 12) %>%
+  setMaxBounds(Yelp_SLO$region.center.longitude[1] - 0.25, 
+               Yelp_SLO$region.center.latitude[1] - 0.25, 
+               Yelp_SLO$region.center.longitude[1] + 0.25, 
+               Yelp_SLO$region.center.latitude[1] + 0.25) %>%
+  addTiles()
+```
+
+## Shapes
+
+Shapes are an intuitive way to represent geographical regions and bounderies on leaflet maps. The first argument in the leaflet method reads several types of polygon and line objects. These shapes are added to the leaflet map using the addPolygons method, which includes several options to change the color, opacity and even interacitivity of the shapes.
+
+In the example below, I used shape data from the County of San Luis Obispo's open geographical dataset. This particular dataset maps the bounderies of the county's [school districts](http://opendata.slocounty.ca.gov/datasets/8ab1e8d0ad7d464e91ddf82c8ea3c58d_81?geometry=-124.601%2C34.612%2C-116.306%2C36.179). The shape file (.shp) is read using the st_read method, a part of the sf libray for polygon data. 
+
+Let's review some of the parameters of the addPolygons method:
+<li> the first two paramters, color and weight, define aspects of the shape's border </li>
+<li> smoothfactor sets the precision of how the regions are displayed. A small smooth factor means more accurately displayed shapes at the cost of performance </li>
+<li> the opacity variable sets the opacity of the borders where as the fillOpacity sets the opacity of the shape's content (its fill) </li>
+<li> fillColor uses a colorQuantile method to map various shades of green to each region (uniquely identified by OBJECTID) </li>
+<li> popup is a message displayed when the user clicks a region (in this case, displaying the name of the School District) </li>
+<br>
+
+
+```{r school_districts}
+school_districts <- st_read("data/School_Districts/School_Districts.shp") %>%
+  filter(OBJECTID != 10) # removes a layer that covers most of the county
+
+school_districts %>% 
+  leaflet() %>%
+  addPolygons(color = "orange", weight = 1, smoothFactor = 0.5,
+    opacity = 1.0, fillOpacity = 0.75,
+    fillColor = ~colorQuantile("Reds", OBJECTID)(OBJECTID),
+    highlightOptions = highlightOptions(color = "white", weight = 2),
+    popup = ~name) %>%
+  addTiles()
+```
+
+Much simpler shapes can be added too, such as circles and rectangles with the addCircles and addRectangles methods. The circle requires a single central coordinate point and a radius where as the rectangle requries two coordinate points for each corner. 
+
+In the first example below, the central coordinates of each circle corespond to the locations of the first six businesses in the Yelp dataset (using the head method). The radius of each circle represents the amount of reviews each establishment received.
+
+```{r circles}
+Yelp_SLO %>%
+  head() %>%
+  leaflet(width = 500) %>%
+  addCircles(lng = ~longitude, lat = ~latitude, weight = 1, radius = ~businesses.review_count, color = "red") %>%
+  setView(Yelp_SLO$region.center.longitude[1], Yelp_SLO$region.center.latitude[1], zoom = 12) %>%
+  addTiles()
+```
+
+The rectangle represents the area of businesses that consider themselves to be a part of the city of San Luis Obsipo. There are a couple of outliers in this dataset, for instance a BBQ restaurant located in Santa Maria is listed as a restaurant in San Luis Obispo according to the Yelp API.
+
+```{r rectangles}
+Yelp_SLO %>%
+  leaflet() %>%
+  addRectangles(
+    lng1 = ~min(longitude), lat1 = ~min(latitude),
+    lng2 = ~max(longitude), lat2 = ~max(latitude),
+    color = "red"
+  ) %>% 
+  addTiles()
+
+```
+
+
+
+## Links
+
+- https://rstudio.github.io/leaflet/
+- https://www.yelp.com/dataset/documentation/main
+- https://github.com/OmaymaS/yelpr
+- https://leafletjs.com/reference-1.4.0.html (JS reference for the leaflet API)
+- http://opendata.slocounty.ca.gov/ 
