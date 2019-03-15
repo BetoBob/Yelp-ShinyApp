@@ -181,10 +181,12 @@ school_districts %>%
 ## Colors and Legends
 
 Colors can be used to convey more information about shape data. A color method is used to store this information. The four types of color mappings include:
-1. numeric: continuous numeric data (continuous)
-2. bin: for continuous numeric data using a set number of bins (discrete)
-3. quantile: for continuous numeric data using a percentage (discrete)
-4. factor: for categorical data
+<ol>
+<li>numeric: continuous numeric data (continuous)</li>
+<li>bin: for continuous numeric data using a set number of bins (discrete)</li>
+<li>quantile: for continuous numeric data using a percentage (discrete)</li>
+<li>factor: for categorical data</li>
+</ol>
 
 The School district example uses a quantile color method to create unique colors for each districts, although the shade of the color does not explicitly convey any information. However in the examples below of San Luis Obispo zoning areas, a color factor method is used to differentiate each city zone (a categorical variable) and a colorNumeric method is used to differentiate the acreage of each zone (a continuous numeric variable). To show what each color represents, a legend can be added to the map using the addLegend method. 
 
