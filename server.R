@@ -1,16 +1,11 @@
-#
-# This is the server logic of a Shiny web application. You can run the 
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
+library(jsonlite)
+library(DT)
 
-# Define server logic required to draw a histogram
 shinyServer(function(input, output) {
+  
+  Yelp_SLO <- as.data.frame(fromJSON("data/businesses_SLO.json")) %>%
+    select(Business = businesses.name, businesses.review_count, businesses.categories, businesses.rating, businesses.price)
    
   points <- eventReactive(input$recalc, {
     cbind(rnorm(40) * 2 + 13, rnorm(40) + 48)
@@ -24,4 +19,7 @@ shinyServer(function(input, output) {
       addMarkers(data = points())
   })
   
+  output$table <- DT::renderDataTable({
+    Yelp_SLO
+  })
 })
