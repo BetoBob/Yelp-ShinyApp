@@ -5,7 +5,7 @@ navbarPage("Yelp Leaflet App",
            
   # Map Panel for Map Stuff
   tabPanel("Map",
-    leafletOutput("mymap"),
+    leafletOutput("generalmap"),
     actionButton("recalc", "New points")
   ),
   

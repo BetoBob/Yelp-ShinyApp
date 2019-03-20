@@ -18,27 +18,7 @@ key <- "pxKTGs3uKpDZXQSo1nKmJKSPycfRqixcudXpKm8oAuVRNEjx_MVUhBryPP8Gg5MgPn6Cl28R
 
 ```
 
-## JSON Attempt
-
-```{r}
-businesses <- stream_in(file("data/business.json"))
-```
-
-```{r}
-head(businesses)
-businesses %>% filter(city == "San Luis Obispo")
-```
-
-It turns out that the open dataset provided by Yelp does not include San Luis Obispo Establishments. Looks like we should use the Yelp API!
-
 ## Yelp Fusion API
-
-- Yelp API for R: https://github.com/OmaymaS/yelpr
-- Maybe make the key less visible ... 
-
-```{r}
-key <- "pxKTGs3uKpDZXQSo1nKmJKSPycfRqixcudXpKm8oAuVRNEjx_MVUhBryPP8Gg5MgPn6Cl28RO6dfRNFrh3jNQVdcDxu-uNI5IUT7-phwJPiOW2L2D2cRrEtIXJyAXHYx"
-```
 
 Example of 10 chinese restaurants in New York:
 
@@ -175,6 +155,29 @@ nrow(businesses_SLO)
 businesses_SLO %>% 
     toJSON() %>%
     write_lines("businesses_SLO.json")
+```
+
+```{r}
+
+# testing categories merge
+
+test <- head(businesses_SLO) %>% select(businesses.id, businesses.categories)
+
+test2 <- head(businesses_SLO)
+
+categories <- businesses_SLO %>% 
+  select(businesses.id, businesses.categories) %>%
+  unnest() 
+
+categories_matrix <- categories %>%
+  spread(key = alias, value = title)
+
+categories_matrix
+
+categories_map <- data.frame(alias = unique(categories$alias), title = unique(categories$title))
+
+categories_map
+
 ```
 
 Success! A future goal would be to speed up the data cleaning process to use on cities with larger datasets.
