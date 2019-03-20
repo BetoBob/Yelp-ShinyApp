@@ -2,24 +2,20 @@ library(shiny)
 library(jsonlite)
 library(DT)
 
+# Data Handling 
+
+Yelp_SLO <- as.data.frame(fromJSON("data/businesses_SLO.json"))
+
+categories <- businesses_SLO %>% 
+  select(businesses.id, businesses.categories) %>%
+  unnest() 
+
+categories_matrix <- categories %>%
+  spread(key = alias, value = title)
+
+categories_map <- data.frame(alias = unique(categories$alias), title = unique(categories$title))
+
 shinyServer(function(input, output) {
-  
-  # Data Handling 
-  
-  Yelp_SLO <- as.data.frame(fromJSON("data/businesses_SLO.json"))
-  
-  categories <- businesses_SLO %>% 
-    select(businesses.id, businesses.categories) %>%
-    unnest() 
-  
-  categories_matrix <- categories %>%
-    spread(key = alias, value = title)
-  
-  categories_map <- data.frame(alias = unique(categories$alias), title = unique(categories$title))
-   
-  points <- eventReactive(input$recalc, {
-    cbind(rnorm(40) * 2 + 13, rnorm(40) + 48)
-  }, ignoreNULL = FALSE)
   
   output$mymap <- renderLeaflet({
     leaflet() %>%
@@ -28,6 +24,10 @@ shinyServer(function(input, output) {
       ) %>%
       addMarkers(data = points())
   })
+  
+  points <- eventReactive(input$recalc, {
+    cbind(rnorm(40) * 2 + 13, rnorm(40) + 48)
+  }, ignoreNULL = FALSE)
   
   output$generalmap <- renderLeaflet({
     leaflet(data = Yelp_SLO, options = leafletOptions(minZoom = 10, maxZoom = 20)) %>%
