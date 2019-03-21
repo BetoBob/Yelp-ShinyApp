@@ -3,7 +3,7 @@ library(leaflet)
 
 Yelp_SLO <- as.data.frame(fromJSON("data/businesses_SLO.json"))
 
-categories <- businesses_SLO %>% 
+categories <- Yelp_SLO %>% 
   select(businesses.id, businesses.categories) %>%
   unnest() %>% 
   select(title) %>%
