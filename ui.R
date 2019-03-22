@@ -68,20 +68,13 @@ navbarPage("Yelp Leaflet App",
   # An Overview of Our Data
   tabPanel("Data",
     dataTableOutput("table")
-  )
-
-  #navbarMenu("About",
-    #tabPanel("yelpr", 
-      #includeHTML("data/Data-Cleanup.html")
-    #)
-    
-    #tabPanel("leaflet", 
-    #         includeHTML("Leaflet_Vignette.html")
-    #),
-    
-    #tabPanel("shiny",
-    #         includeHTML("YelpReport.html")
-    #)
-  #)
+  ),
+  
+  # About Page
+    tabPanel("About", 
+             uiOutput("about"), 
+             uiOutput("yelpr")
+    )
+  
 )
 

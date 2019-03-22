@@ -16,8 +16,6 @@ categories_matrix <- categories %>%
 
 categories_map <- data.frame(alias = unique(categories$alias), title = unique(categories$title))
 
-last_category <- "All"
-
 shinyServer(function(input, output) {
   
   # method for printing the main map
@@ -33,11 +31,40 @@ shinyServer(function(input, output) {
     
   })
   
+  check_category <- function(id, category) {
+    !categories_matrix %>%
+      filter(businesses.id == id) %>%
+      select(category) %>% 
+      is.na()
+  }
+  
+  update_data <- function() {
+
+    Yelp_update <- Yelp_SLO
+      
+    # filter by price
+    if(input$price != 0) {
+      Yelp_update <- Yelp_update %>%
+        filter(businesses.price == input$price)
+    }
+    
+    # filter by category
+    if(input$category != "All") {
+      Yelp_update <- Yelp_update %>% 
+        filter(sapply(businesses.id, check_category, category = input$category))
+    }
+    
+    # filter by review count / review number
+    Yelp_update %>% 
+      filter(businesses.review_count >= input$review_counts[1] & businesses.review_count <= input$review_counts[2]) %>%
+      filter(businesses.rating >= input$review_number[1] & businesses.rating <= input$review_number[2])
+  }
+  
   updatePopup <- function(){
     popupContent <- "test"
   }
   
-  # change markers / clustering mode
+  # change markers / clustering mode 
   observe({
 
     proxy <- leafletProxy("map", data = update_data()) %>%
@@ -67,61 +94,6 @@ shinyServer(function(input, output) {
     }
     
   })
-  
-  check_category <- function(id, category) {
-    !categories_matrix %>%
-      filter(businesses.id == id) %>%
-      select(category) %>% 
-      is.na()
-  }
-  
-  update_data <- function() {
-    
-    Yelp_update <- Yelp_SLO
-    
-    # filter by price
-    if(input$price != 0) {
-      Yelp_update <- Yelp_update %>%
-        filter(businesses.price == input$price)
-    }
-    
-    # filter by category
-    if(input$category != "All" & (input$category != last_category)) {
-      Yelp_update <- Yelp_update %>% 
-        filter(sapply(businesses.id, check_category, category = input$category))
-    }
-    
-    assign("last_category", input$category, envir = .GlobalEnv)
-    
-    # filter by review count / review number
-    Yelp_update %>% 
-      filter(businesses.review_count >= input$review_counts[1] & businesses.review_count <= input$review_counts[2]) %>%
-      filter(businesses.rating >= input$review_number[1] & businesses.rating <= input$review_number[2])
-  }
-  
-  # method for printing the main map
-  output$generalmap <- renderLeaflet({
-
-    # main map features
-    Yelp_map <- leaflet(data = update_data(), options = leafletOptions(minZoom = 10, maxZoom = 20)) %>%
-      setView(Yelp_SLO$region.center.longitude[1], Yelp_SLO$region.center.latitude[1], zoom = 12) %>%
-      setMaxBounds(Yelp_SLO$region.center.longitude[1] - 0.25,
-                   Yelp_SLO$region.center.latitude[1] - 0.25, 
-                   Yelp_SLO$region.center.longitude[1] + 0.25, 
-                   Yelp_SLO$region.center.latitude[1] + 0.25) %>%
-      addEasyButton(easyButton(
-        icon="fa-crosshairs", title="Locate Me",
-        onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>%
-      addTiles() 
-    
-    # conditional pin cluster
-    if(input$cluster) {
-      Yelp_map %>% addMarkers(~longitude, ~latitude, popup = popupContent, clusterOptions = markerClusterOptions()
-                 , icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25)))
-    } else {
-      Yelp_map %>% addMarkers(~longitude, ~latitude, popup = popupContent, icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25)))
-    }
-  })
 
   output$table <- renderDataTable({
     update_data() %>%
@@ -133,6 +105,16 @@ shinyServer(function(input, output) {
         Phone = businesses.display_phone,
         "Street Address" = address
         )
+  })
+  
+  # Render methods for about pages
+  
+  output$yelpr <- renderUI({
+    includeHTML("data/Data-Cleanup.html")
+  })
+  
+  output$about <- renderUI({
+    includeHTML("YelpReport.html")
   })
   
 })
