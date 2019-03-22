@@ -55,7 +55,15 @@ shinyServer(function(input, output) {
   })
   
   output$table <- DT::renderDataTable({
-    Yelp_SLO
+    update_data() %>%
+      select(
+        Name = businesses.name, 
+        "Review Count" = businesses.review_count, 
+        Rating = businesses.rating, 
+        Price = businesses.price, 
+        Phone = businesses.display_phone,
+        "Street Address" = address
+        )
   })
   
 })
