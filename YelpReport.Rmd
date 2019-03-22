@@ -17,7 +17,7 @@ The shiny app is divided between 3 tabs:
 
 ******
 
-# Map
+### Map
 
 This is where most of the app's functionality lives. The map provides an overview of different businesses in SLO. Users can click on pins to get more information about the business (Name, rating, prices, etc.). Below the map, users can manipulate sliders and dropdowns to filter business results to their preferences.
 
@@ -28,13 +28,13 @@ This is where most of the app's functionality lives. The map provides an overvie
     
 ******
 
-# Data
+### Data
 
 The data tab gives users a look into the data set we're working with. We pulled our business information from the Yelp database and cleaned up the data for purpose of this project. This tab is mostly for individuals curious about the type of data used for the map. There is also a search bar that allows users to look for specific businesses. You can also search a street name to get a list of all relevant restaurants.
 
 ******
 
-# About
+### About
 
 TBD
 

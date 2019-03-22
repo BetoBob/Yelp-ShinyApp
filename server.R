@@ -1,7 +1,6 @@
 library(shiny)
 library(tidyverse)
 library(jsonlite)
-library(DT)
 
 # Data Handling 
 
@@ -54,7 +53,7 @@ shinyServer(function(input, output) {
   
   # method for printing the main map
   output$generalmap <- renderLeaflet({
-    
+
     popupContent <- ~paste0("<a href='",businesses.url,"'>", businesses.name, "</a></b><br>",
                             address, "<br>",
                             "Price: ", businesses.price, "<br>",
@@ -63,17 +62,29 @@ shinyServer(function(input, output) {
         
     )
     
-    leaflet(data = update_data(), options = leafletOptions(minZoom = 10, maxZoom = 20)) %>%
-      addMarkers(~longitude, ~latitude, popup = popupContent, icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25))) %>%
+
+    # main map features
+    Yelp_map <- leaflet(data = update_data(), options = leafletOptions(minZoom = 10, maxZoom = 20)) %>%
       setView(Yelp_SLO$region.center.longitude[1], Yelp_SLO$region.center.latitude[1], zoom = 12) %>%
       setMaxBounds(Yelp_SLO$region.center.longitude[1] - 0.25,
                    Yelp_SLO$region.center.latitude[1] - 0.25, 
                    Yelp_SLO$region.center.longitude[1] + 0.25, 
                    Yelp_SLO$region.center.latitude[1] + 0.25) %>%
-      addTiles()
+      addEasyButton(easyButton(
+        icon="fa-crosshairs", title="Locate Me",
+        onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>%
+      addTiles() 
+    
+    # conditional pin cluster
+    if(input$cluster) {
+      Yelp_map %>% addMarkers(~longitude, ~latitude, popup = popupContent, clusterOptions = markerClusterOptions()
+                 , icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25)))
+    } else {
+      Yelp_map %>% addMarkers(~longitude, ~latitude, popup = popupContent, icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25)))
+    }
   })
   
-  output$table <- DT::renderDataTable({
+  output$table <- renderDataTable({
     update_data() %>%
       select(
         Name = businesses.name, 
