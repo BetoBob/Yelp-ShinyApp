@@ -47,8 +47,8 @@ navbarPage("Yelp Leaflet App",
       
       # range of review counts
       sliderInput("review_counts", "Review Counts",
-                  min = 1, max = 1000,
-                  value = c(1, 1000)),
+                  min = 1, max = max_reviews,
+                  value = c(1, max_reviews)),
       
       # range of review counts
       sliderInput("review_number", "Review Score",
