@@ -20,6 +20,48 @@ last_category <- "All"
 
 shinyServer(function(input, output) {
   
+  # method for printing the main map
+  output$map <- renderLeaflet({
+    
+    # main map features
+    Yelp_map <- leaflet(data = Yelp_SLO) %>%
+      setView(Yelp_SLO$region.center.longitude[1], Yelp_SLO$region.center.latitude[1], zoom = 12) %>% 
+      addEasyButton(easyButton(
+        icon="fa-crosshairs", title="Locate Me",
+        onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>%
+      addTiles()
+    
+  })
+  
+  updatePopup <- function(){
+    popupContent <- "test"
+  }
+  
+  # change markers / clustering mode
+  observe({
+
+    proxy <- leafletProxy("map", data = update_data()) %>%
+      clearMarkerClusters() %>%
+      clearMarkers()
+    
+    popupContent <- ~paste0('<font face = "arial">',"<b><a href='",businesses.url,"'>", businesses.name, "</a></b><br>",
+                            address, "<br>",
+                            '<b><font color="green">Price: </b>', businesses.price, "</font><br>",
+                            '<b><font color="red">Rating: </b>', businesses.rating, '</font><br><br>',
+                            '<img src="', businesses.image_url,'"width="200" height="200"></font>'
+                            
+    )
+    
+    # conditional pin cluster
+    if(input$cluster) {
+      proxy %>% addMarkers(~longitude, ~latitude, popup = popupContent, clusterOptions = markerClusterOptions()
+                              , icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25)))
+    } else {
+      proxy %>% addMarkers(~longitude, ~latitude, popup = popupContent, icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25)))
+    }
+    
+  })
+  
   check_category <- function(id, category) {
     !categories_matrix %>%
       filter(businesses.id == id) %>%
@@ -54,15 +96,6 @@ shinyServer(function(input, output) {
   # method for printing the main map
   output$generalmap <- renderLeaflet({
 
-    popupContent <- ~paste0('<font face = "arial">',"<b><a href='",businesses.url,"'>", businesses.name, "</a></b><br>",
-                            address, "<br>",
-                            '<b><font color="green">Price: </b>', businesses.price, "</font><br>",
-                            '<b><font color="red">Rating: </b>', businesses.rating, '</font><br><br>',
-                            '<img src="', businesses.image_url,'"width="200" height="200"></font>'
-        
-    )
-    
-
     # main map features
     Yelp_map <- leaflet(data = update_data(), options = leafletOptions(minZoom = 10, maxZoom = 20)) %>%
       setView(Yelp_SLO$region.center.longitude[1], Yelp_SLO$region.center.latitude[1], zoom = 12) %>%
@@ -83,7 +116,7 @@ shinyServer(function(input, output) {
       Yelp_map %>% addMarkers(~longitude, ~latitude, popup = popupContent, icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25)))
     }
   })
-  
+
   output$table <- renderDataTable({
     update_data() %>%
       select(
