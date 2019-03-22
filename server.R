@@ -54,11 +54,11 @@ shinyServer(function(input, output) {
   # method for printing the main map
   output$generalmap <- renderLeaflet({
 
-    popupContent <- ~paste0("<a href='",businesses.url,"'>", businesses.name, "</a></b><br>",
+    popupContent <- ~paste0('<font face = "arial">',"<b><a href='",businesses.url,"'>", businesses.name, "</a></b><br>",
                             address, "<br>",
-                            "Price: ", businesses.price, "<br>",
-                            "Rating: ", businesses.rating, "<br>",
-                            '<img src="', businesses.image_url,'"width="200" height="200">'
+                            '<b><font color="green">Price: </b>', businesses.price, "</font><br>",
+                            '<b><font color="red">Rating: </b>', businesses.rating, '</font><br><br>',
+                            '<img src="', businesses.image_url,'"width="200" height="200"></font>'
         
     )
     
