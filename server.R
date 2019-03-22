@@ -54,8 +54,17 @@ shinyServer(function(input, output) {
   
   # method for printing the main map
   output$generalmap <- renderLeaflet({
+    
+    popupContent <- ~paste0("<a href='",businesses.url,"'>", businesses.name, "</a></b><br>",
+                            address, "<br>",
+                            "Price: ", businesses.price, "<br>",
+                            "Rating: ", businesses.rating, "<br>",
+                            '<img src="', businesses.image_url,'"width="200" height="200">'
+        
+    )
+    
     leaflet(data = update_data(), options = leafletOptions(minZoom = 10, maxZoom = 20)) %>%
-      addMarkers(~longitude, ~latitude, popup = ~as.character(businesses.name), icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25))) %>%
+      addMarkers(~longitude, ~latitude, popup = popupContent, icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25))) %>%
       setView(Yelp_SLO$region.center.longitude[1], Yelp_SLO$region.center.latitude[1], zoom = 12) %>%
       setMaxBounds(Yelp_SLO$region.center.longitude[1] - 0.25,
                    Yelp_SLO$region.center.latitude[1] - 0.25, 
