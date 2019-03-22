@@ -1,0 +1,40 @@
+---
+title: "Yelp Leaflet App"
+output:
+  html_document:
+    df_print: paged
+---
+
+Hello! Welcome to our [Yelp Leaflet App](https://betobob.shinyapps.io/Yelp-ShinyApp/) Below you will find an expanation of some of the key features of the project.
+
+******
+
+The shiny app is divided between 3 tabs:
+
+* ####Map
+* ####Data
+* ####About
+
+******
+
+# Map
+
+This is where most of the app's functionality lives. The map provides an overview of different businesses in SLO. Users can click on pins to get more information about the business (Name, rating, prices, etc.). Below the map, users can manipulate sliders and dropdowns to filter business results to their preferences.
+
+* Search By Category:
+    + This dropdown allows users to specify what businesses they want to see from a wide variety of options.
+* Select max price:
+    + Move the slider to change the maximum price depending on how big your budget is.
+    
+******
+
+# Data
+
+The data tab gives users a look into the data set we're working with. We pulled our business information from the Yelp database and cleaned up the data for purpose of this project. This tab is mostly for individuals curious about the type of data used for the map. There is also a search bar that allows users to look for specific businesses. You can also search a street name to get a list of all relevant restaurants.
+
+******
+
+# About
+
+TBD
+
