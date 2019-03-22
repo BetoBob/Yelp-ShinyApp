@@ -1,6 +1,7 @@
 library(shiny)
 library(shinyWidgets)
 library(leaflet)
+library(leaflet.extras)
 library(jsonlite)
 library(tidyverse)
 
@@ -56,7 +57,10 @@ navbarPage("Yelp Leaflet App",
                   value = c(1, max_reviews)), 
       
       # checkbox for clustering
-      checkboxInput("cluster", "Enable Clustering", FALSE)
+      checkboxInput("cluster", "Enable Clustering", FALSE),
+      
+      #checkbox for heatmap
+      checkboxInput("heatmap", "Enable heat map", FALSE)
       
     )
   ),
