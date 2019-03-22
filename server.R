@@ -20,6 +20,36 @@ last_category <- "All"
 
 shinyServer(function(input, output) {
   
+  # method for printing the main map
+  output$map <- renderLeaflet({
+    
+    # main map features
+    Yelp_map <- leaflet(data = Yelp_SLO) %>%
+      setView(Yelp_SLO$region.center.longitude[1], Yelp_SLO$region.center.latitude[1], zoom = 12) %>% 
+      addEasyButton(easyButton(
+        icon="fa-crosshairs", title="Locate Me",
+        onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>%
+      addTiles()
+    
+  })
+  
+  # change markers / clustering mode
+  observe({
+
+    proxy <- leafletProxy("map", data = update_data()) %>%
+      clearMarkerClusters() %>%
+      clearMarkers()
+    
+    # conditional pin cluster
+    if(input$cluster) {
+      proxy %>% addMarkers(~longitude, ~latitude, popup = ~as.character(businesses.name), clusterOptions = markerClusterOptions()
+                              , icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25)))
+    } else {
+      proxy %>% addMarkers(~longitude, ~latitude, popup = ~as.character(businesses.name), icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25)))
+    }
+    
+  })
+  
   check_category <- function(id, category) {
     !categories_matrix %>%
       filter(businesses.id == id) %>%
@@ -50,30 +80,6 @@ shinyServer(function(input, output) {
       filter(businesses.review_count >= input$review_counts[1] & businesses.review_count <= input$review_counts[2]) %>%
       filter(businesses.rating >= input$review_number[1] & businesses.rating <= input$review_number[2])
   }
-  
-  # method for printing the main map
-  output$generalmap <- renderLeaflet({
-    
-    # main map features
-    Yelp_map <- leaflet(data = update_data(), options = leafletOptions(minZoom = 10, maxZoom = 20)) %>%
-      setView(Yelp_SLO$region.center.longitude[1], Yelp_SLO$region.center.latitude[1], zoom = 12) %>%
-      setMaxBounds(Yelp_SLO$region.center.longitude[1] - 0.25,
-                   Yelp_SLO$region.center.latitude[1] - 0.25, 
-                   Yelp_SLO$region.center.longitude[1] + 0.25, 
-                   Yelp_SLO$region.center.latitude[1] + 0.25) %>%
-      addEasyButton(easyButton(
-        icon="fa-crosshairs", title="Locate Me",
-        onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>%
-      addTiles() 
-    
-    # conditional pin cluster
-    if(input$cluster) {
-      Yelp_map %>% addMarkers(~longitude, ~latitude, popup = ~as.character(businesses.name), clusterOptions = markerClusterOptions()
-                 , icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25)))
-    } else {
-      Yelp_map %>% addMarkers(~longitude, ~latitude, popup = ~as.character(businesses.name), icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25)))
-    }
-  })
   
   output$table <- renderDataTable({
     update_data() %>%
