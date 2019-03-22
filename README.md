@@ -1,18 +1,17 @@
 # Yelp-ShinyApp
 
-## Description
-Using Leaflet and the open yelp dataset, we plan to geographically analyze yelp businesses and reviews in San Luis Obispo. We will generate a heat map of locations in SLO that are in close proximity to highly rated yelp businesses. The user will be able to set parameters such as business category, price range, hours open, etc.
+### Description
+Using Leaflet and the Yelp Fusion API, this shiny app geographically analyzes yelp businesses in the city of San Luis Obispo. You can set various parameters such as business category, price range, rating and more.
 
-## Project Ideas
-- click top restaurants near me
-  - set a radius for distance away from current point
-- general map of SLO and restaurants
-  - search by name, category
-  - filter by category, star ranking
-- clicking pins will give info about the restaurant (maybe on the side for more space)
+### Links
 
-## Links
-- https://rstudio.github.io/leaflet/
-- https://www.yelp.com/dataset/documentation/main
-- https://github.com/OmaymaS/yelpr
-- https://leafletjs.com/reference-1.4.0.html (JS reference for the leaflet API)
+- [Shiny App](https://betobob.shinyapps.io/Yelp-ShinyApp/)
+- [GitHub Repository](https://github.com/BetoBob/BetoBob.github.io)
+- [Leaflet Vignette](http://users.csc.calpoly.edu/~rehensle/Leaflet-Vignette.html)
+- [Data Cleanup](http://users.csc.calpoly.edu/~rehensle/Data-Cleanup.html)
+
+### External Links
+
+- [leaflet](https://rstudio.github.io/leaflet/)
+- [yelpr](https://github.com/OmaymaS/yelpr)
+- [Yelp Fusion API](https://www.yelp.com/dataset/documentation/main)

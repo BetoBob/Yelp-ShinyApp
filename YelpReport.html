@@ -9,6 +9,7 @@
 <meta name="generator" content="pandoc" />
 
 
+<meta name="author" content="Robert Hensley and Zack Ragozzino" />
 
 
 <title>Yelp Leaflet App</title>
@@ -186,42 +187,73 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">Yelp Leaflet App</h1>
+<h4 class="author"><em>Robert Hensley and Zack Ragozzino</em></h4>
 
 </div>
 
 
-<p>Hello! Welcome to our <a href="https://betobob.shinyapps.io/Yelp-ShinyApp/">Yelp Leaflet App</a> Below you will find an expanation of some of the key features of the project.</p>
+<p>Hello! Welcome to our <a href="https://betobob.shinyapps.io/Yelp-ShinyApp/">Yelp Leaflet App</a>!</p>
+<p>Using Leaflet and the Yelp Fusion API, this shiny app geographically analyzes yelp businesses in the city of San Luis Obispo. You can set various parameters such as business category, price range, rating and more.</p>
+<p>Below you will find an expanation of some of the key features of the project.</p>
 <hr />
-<p>The shiny app is divided between 3 tabs:</p>
-<ul>
-<li><h4 id="map">Map</h4></li>
-<li><h4 id="data">Data</h4></li>
-<li><h4 id="about">About</h4></li>
-</ul>
-<hr />
-<div id="map-1" class="section level1">
-<h1>Map</h1>
-<p>This is where most of the app’s functionality lives. The map provides an overview of different businesses in SLO. Users can click on pins to get more information about the business (Name, rating, prices, etc.). Below the map, users can manipulate sliders and dropdowns to filter business results to their preferences.</p>
+<div id="map" class="section level3">
+<h3>Map</h3>
+<p>This is where most of the app’s functionality lives. The map provides an overview of different businesses in SLO. Users can click on pins to get more information about the business (Name, rating, prices, etc.). On the control panel on the top right of the map, users can manipulate sliders and dropdowns to filter business results to their preferences.</p>
 <ul>
 <li>Search By Category:
 <ul>
 <li>This dropdown allows users to specify what businesses they want to see from a wide variety of options.</li>
 </ul></li>
-<li>Select max price:
+<li>Select Price:
 <ul>
-<li>Move the slider to change the maximum price depending on how big your budget is.</li>
+<li>Move the slider to change the price depending on how big your budget is</li>
+<li>the default value zero includes all price points</li>
+</ul></li>
+<li>Review Counts
+<ul>
+<li>set the minimum and maximum amount of reviews a business received</li>
+<li>businesses with a larger set of reviews have a much more representitive Yelp review score</li>
+</ul></li>
+<li>Review Score
+<ul>
+<li>Set the minimum and maximum review score</li>
+<li>great for filtering out low rated restaurants, or for discovering terrible restaurants if that’s what you’re into!</li>
+</ul></li>
+<li>Enable Clustering:
+<ul>
+<li>this feature turns groups of pins into cluster centroids</li>
+<li>this is great for areas that have a high density of businesses</li>
+</ul></li>
+<li>Enable Heatmap:
+<ul>
+<li>creates a heatmap visualization of SLO businesses based on attributes the user select</li>
+<li>this replaces the pins on the map</li>
 </ul></li>
 </ul>
 <hr />
 </div>
-<div id="data-1" class="section level1">
-<h1>Data</h1>
-<p>The data tab gives users a look into the data set we’re working with. We pulled our business information from the Yelp database and cleaned up the data for purpose of this project. This tab is mostly for individuals curious about the type of data used for the map. There is also a search bar that allows users to look for specific businesses. You can also search a street name to get a list of all relevant restaurants.</p>
+<div id="data" class="section level3">
+<h3>Data</h3>
+<p>The data tab gives users a look into the data set we’re working with. We pulled our business information from the Yelp Fusion API and <a href="http://users.csc.calpoly.edu/~rehensle/Data-Cleanup.html">cleaned up the data</a> for purpose of this project. This tab is mostly for individuals curious about the type of data used for the map. There is also a search bar that allows users to look for specific businesses. You can also search a street name to get a list of all relevant restaurants.</p>
 <hr />
 </div>
-<div id="about-1" class="section level1">
-<h1>About</h1>
-<p>TBD</p>
+<div id="links" class="section level3">
+<h3>Links</h3>
+<ul>
+<li><a href="https://betobob.shinyapps.io/Yelp-ShinyApp/">Shiny App</a></li>
+<li><a href="https://github.com/BetoBob/BetoBob.github.io">GitHub Repository</a></li>
+<li><a href="http://users.csc.calpoly.edu/~rehensle/Leaflet-Vignette.html">Leaflet Vignette</a></li>
+<li><a href="http://users.csc.calpoly.edu/~rehensle/Data-Cleanup.html">Data Cleanup</a></li>
+</ul>
+</div>
+<div id="external-links" class="section level3">
+<h3>External Links</h3>
+<ul>
+<li><a href="https://rstudio.github.io/leaflet/">leaflet</a></li>
+<li><a href="https://github.com/OmaymaS/yelpr">yelpr</a></li>
+<li><a href="https://www.yelp.com/dataset/documentation/main">Yelp Fusion API</a></li>
+</ul>
+<p><a href="https://betobob.shinyapps.io/Yelp-ShinyApp/" class="uri">https://betobob.shinyapps.io/Yelp-ShinyApp/</a></p>
 </div>
 
 

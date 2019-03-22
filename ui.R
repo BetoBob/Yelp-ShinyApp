@@ -60,7 +60,7 @@ navbarPage("Yelp Leaflet App",
       checkboxInput("cluster", "Enable Clustering", FALSE),
       
       #checkbox for heatmap
-      checkboxInput("heatmap", "Enable heat map", FALSE)
+      checkboxInput("heatmap", "Enable Heat Map", FALSE)
       
     )
   ),
@@ -71,9 +71,9 @@ navbarPage("Yelp Leaflet App",
   ),
   
   # About Page
+  
     tabPanel("About", 
-             uiOutput("about"), 
-             uiOutput("yelpr")
+             uiOutput("about")
     )
   
 )

@@ -1,40 +1,60 @@
 ---
 title: "Yelp Leaflet App"
+author: "Robert Hensley and Zack Ragozzino"
 output:
   html_document:
     df_print: paged
 ---
 
-Hello! Welcome to our [Yelp Leaflet App](https://betobob.shinyapps.io/Yelp-ShinyApp/) Below you will find an expanation of some of the key features of the project.
+Hello! Welcome to our [Yelp Leaflet App](https://betobob.shinyapps.io/Yelp-ShinyApp/)!
 
-******
+Using Leaflet and the Yelp Fusion API, this shiny app geographically analyzes yelp businesses in the city of San Luis Obispo. You can set various parameters such as business category, price range, rating and more.
 
-The shiny app is divided between 3 tabs:
-
-* ####Map
-* ####Data
-* ####About
+Below you will find an expanation of some of the key features of the project.
 
 ******
 
 ### Map
 
-This is where most of the app's functionality lives. The map provides an overview of different businesses in SLO. Users can click on pins to get more information about the business (Name, rating, prices, etc.). Below the map, users can manipulate sliders and dropdowns to filter business results to their preferences.
+This is where most of the app's functionality lives. The map provides an overview of different businesses in SLO. Users can click on pins to get more information about the business (Name, rating, prices, etc.). On the control panel on the top right of the map, users can manipulate sliders and dropdowns to filter business results to their preferences.
 
 * Search By Category:
     + This dropdown allows users to specify what businesses they want to see from a wide variety of options.
-* Select max price:
-    + Move the slider to change the maximum price depending on how big your budget is.
+* Select Price:
+    + Move the slider to change the price depending on how big your budget is
+    + the default value zero includes all price points
+* Review Counts
+    + set the minimum and maximum amount of reviews a business received
+    + businesses with a larger set of reviews have a much more representitive Yelp review score
+* Review Score
+    + Set the minimum and maximum review score
+    + great for filtering out low rated restaurants, or for discovering terrible restaurants if that's what you're into!
+* Enable Clustering:
+    + this feature turns groups of pins into cluster centroids
+    + this is great for areas that have a high density of businesses
+* Enable Heatmap:
+    + creates a heatmap visualization of SLO businesses based on attributes the user select
+    + this replaces the pins on the map
     
 ******
 
 ### Data
 
-The data tab gives users a look into the data set we're working with. We pulled our business information from the Yelp database and cleaned up the data for purpose of this project. This tab is mostly for individuals curious about the type of data used for the map. There is also a search bar that allows users to look for specific businesses. You can also search a street name to get a list of all relevant restaurants.
+The data tab gives users a look into the data set we're working with. We pulled our business information from the Yelp Fusion API and [cleaned up the data](http://users.csc.calpoly.edu/~rehensle/Data-Cleanup.html) for purpose of this project. This tab is mostly for individuals curious about the type of data used for the map. There is also a search bar that allows users to look for specific businesses. You can also search a street name to get a list of all relevant restaurants.
 
 ******
 
-### About
+### Links
 
-TBD
+- [Shiny App](https://betobob.shinyapps.io/Yelp-ShinyApp/)
+- [GitHub Repository](https://github.com/BetoBob/BetoBob.github.io)
+- [Leaflet Vignette](http://users.csc.calpoly.edu/~rehensle/Leaflet-Vignette.html)
+- [Data Cleanup](http://users.csc.calpoly.edu/~rehensle/Data-Cleanup.html)
 
+### External Links
+
+- [leaflet](https://rstudio.github.io/leaflet/)
+- [yelpr](https://github.com/OmaymaS/yelpr)
+- [Yelp Fusion API](https://www.yelp.com/dataset/documentation/main)
+
+https://betobob.shinyapps.io/Yelp-ShinyApp/

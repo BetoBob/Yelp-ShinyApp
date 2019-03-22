@@ -38,6 +38,7 @@ shinyServer(function(input, output) {
       is.na()
   }
   
+  # update data according to input parameters
   update_data <- function() {
 
     Yelp_update <- Yelp_SLO
@@ -64,7 +65,7 @@ shinyServer(function(input, output) {
     popupContent <- "test"
   }
   
-  # change markers / clustering mode 
+  # change markers / clustering mode / heatmap
   observe({
 
     proxy <- leafletProxy("map", data = update_data()) %>%
@@ -94,6 +95,8 @@ shinyServer(function(input, output) {
     }
     
   })
+  
+  # Output Data Table of Selected Businesses
 
   output$table <- renderDataTable({
     update_data() %>%
@@ -107,11 +110,7 @@ shinyServer(function(input, output) {
         )
   })
   
-  # Render methods for about pages
-  
-  output$yelpr <- renderUI({
-    includeHTML("data/Data-Cleanup.html")
-  })
+  # Render method for about pages
   
   output$about <- renderUI({
     includeHTML("YelpReport.html")
