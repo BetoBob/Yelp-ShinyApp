@@ -52,10 +52,16 @@ shinyServer(function(input, output) {
                             
     )
     
+    clearWebGLHeatmap(proxy)
+    
     # conditional pin cluster
     if(input$cluster) {
       proxy %>% addMarkers(~longitude, ~latitude, popup = popupContent, clusterOptions = markerClusterOptions()
                               , icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25)))
+    }
+    else if(input$heatmap){
+      proxy %>%
+        addWebGLHeatmap(lng=~longitude, lat=~latitude, size = 1000) 
     } else {
       proxy %>% addMarkers(~longitude, ~latitude, popup = popupContent, icon = list(iconUrl = "img/red-map-marker.png", iconSize = c(25, 25)))
     }
