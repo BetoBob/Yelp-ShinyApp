@@ -17,6 +17,8 @@ categories_matrix <- categories %>%
 
 categories_map <- data.frame(alias = unique(categories$alias), title = unique(categories$title))
 
+last_category <- "All"
+
 shinyServer(function(input, output) {
   
   check_category <- function(id, category) {
@@ -37,10 +39,12 @@ shinyServer(function(input, output) {
     }
     
     # filter by category
-    if(input$category != "All") {
+    if(input$category != "All" & (input$category != last_category)) {
       Yelp_update <- Yelp_update %>% 
         filter(sapply(businesses.id, check_category, category = "American (Traditional)"))
     }
+    
+    assign("last_category", input$category, envir = .GlobalEnv)
     
     # filter by review count / review number
     Yelp_update %>% 
