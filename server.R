@@ -5,7 +5,8 @@ library(DT)
 
 # Data Handling 
 
-Yelp_SLO <- as.data.frame(fromJSON("data/businesses_SLO.json"))
+Yelp_SLO <- as.data.frame(fromJSON("data/businesses_SLO.json")) %>%
+  filter(!businesses.is_closed)
 
 categories <- Yelp_SLO %>% 
   select(businesses.id, businesses.categories) %>%
@@ -27,19 +28,24 @@ shinyServer(function(input, output) {
   
   update_data <- function() {
     
-    update <- Yelp_SLO
-      
+    Yelp_update <- Yelp_SLO
+    
+    # filter by price
     if(input$price != 0) {
-      update <- update %>%
+      Yelp_update <- Yelp_update %>%
         filter(businesses.price == input$price)
     }
     
+    # filter by category
     if(input$category != "All") {
-      update <- update %>% 
+      Yelp_update <- Yelp_update %>% 
         filter(sapply(businesses.id, check_category, category = "American (Traditional)"))
     }
     
-    update
+    # filter by review count / review number
+    Yelp_update %>% 
+      filter(businesses.review_count >= input$review_counts[1] & businesses.review_count <= input$review_counts[2]) %>%
+      filter(businesses.rating >= input$review_number[1] & businesses.rating <= input$review_number[2])
   }
   
   # method for printing the main map
