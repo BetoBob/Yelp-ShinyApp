@@ -170,7 +170,7 @@ categories <- businesses_SLO %>%
   unnest() 
 
 categories_matrix <- categories %>%
-  spread(key = alias, value = title)
+  spread(key = title, value = alias)
 
 categories_matrix
 
@@ -178,6 +178,24 @@ categories_map <- data.frame(alias = unique(categories$alias), title = unique(ca
 
 categories_map
 
+```
+
+```{r}
+
+check_category <- function(id, category) {
+  !categories_matrix %>%
+    filter(businesses.id == id) %>%
+    select(category) %>% 
+    is.na()
+}
+
+check_category("_3cAeuaKocR1L5nLJITs7Q", "American (Traditional)")
+```
+
+```{r}
+
+businesses_SLO %>% 
+  filter(sapply(businesses.id, check_category, category = "American (Traditional)"))
 ```
 
 Success! A future goal would be to speed up the data cleaning process to use on cities with larger datasets.

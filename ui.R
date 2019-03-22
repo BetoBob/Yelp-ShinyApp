@@ -1,4 +1,5 @@
 library(shiny)
+library(shinyWidgets)
 library(leaflet)
 
 Yelp_SLO <- as.data.frame(fromJSON("data/businesses_SLO.json"))
@@ -17,7 +18,18 @@ navbarPage("Yelp Leaflet App",
   tabPanel("Map",
     leafletOutput("generalmap"),
     p(),
-    selectizeInput("category", "Search By Category", categories, selected = "All", multiple = FALSE, options = NULL)
+    selectizeInput("category", "Search By Category", categories, selected = "All", multiple = FALSE, options = NULL),
+    
+    # slide for price range
+    sliderTextInput("price","Select Max Price" , 
+                    choices = c("0", "$", "$$", "$$$", "$$$$"), 
+                                animate = FALSE, grid = FALSE, 
+                                hide_min_max = FALSE, from_fixed = FALSE,
+                                to_fixed = FALSE, from_min = NULL, from_max = NULL, to_min = NULL,
+                                to_max = NULL, force_edges = FALSE, width = NULL, pre = NULL,
+                                post = NULL, dragRange = TRUE),
+    
+    h3(textOutput("caption"))
   ),
   
   # An Overview of Our Data
