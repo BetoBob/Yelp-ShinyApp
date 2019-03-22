@@ -34,7 +34,7 @@ navbarPage("Yelp Leaflet App",
     selectizeInput("category", "Search By Category", categories, selected = "All", multiple = FALSE, options = NULL),
     
     # slide for price range
-    sliderTextInput("price","Select Price Range" , 
+    sliderTextInput("price","Select Price" , 
                     choices = c("0", "$", "$$", "$$$", "$$$$"), 
                                 animate = FALSE, grid = FALSE, 
                                 hide_min_max = FALSE, from_fixed = FALSE,
@@ -44,18 +44,21 @@ navbarPage("Yelp Leaflet App",
     
     # range of review counts
     sliderInput("review_counts", "Review Counts",
-                min = 1, max = max_reviews,
-                value = c(1, max_reviews)),
+                min = 1, max = 1000,
+                value = c(1, 1000)),
     
     # range of review counts
     sliderInput("review_number", "Review Score",
                 min = 1, max = 5,
-                value = c(1, max_reviews))
+                value = c(1, max_reviews)), 
+    
+    # checkbox for clustering
+    checkboxInput("cluster", "Enable Clustering", FALSE)
   ),
   
   # An Overview of Our Data
   tabPanel("Data",
-    DT::dataTableOutput("table")
+    dataTableOutput("table")
   ), 
   
   
