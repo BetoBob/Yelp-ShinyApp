@@ -88,7 +88,7 @@ shinyServer(function(input, output) {
     # filter by category
     if(input$category != "All" & (input$category != last_category)) {
       Yelp_update <- Yelp_update %>% 
-        filter(sapply(businesses.id, check_category, category = "American (Traditional)"))
+        filter(sapply(businesses.id, check_category, category = input$category))
     }
     
     assign("last_category", input$category, envir = .GlobalEnv)

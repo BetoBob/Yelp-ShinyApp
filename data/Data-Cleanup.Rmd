@@ -95,7 +95,7 @@ a["country"] <- append[["businesses"]][["location"]][["country"]]
 
 combo <- rbind(b %>% select(-c(businesses.coordinates, businesses.location)), a %>% select(-c(businesses.coordinates, businesses.location)))
 
-head(combo)
+glimpse(combo)
 
 ```
 
@@ -149,53 +149,12 @@ businesses_SLO <- get_businesses("San Luis Obispo")
 ```
 
 ```{r}
-head(businesses_SLO)
+glimpse(businesses_SLO)
 nrow(businesses_SLO)
 
 businesses_SLO %>% 
     toJSON() %>%
     write_lines("businesses_SLO.json")
-```
-
-```{r}
-
-# testing categories merge
-
-test <- head(businesses_SLO) %>% select(businesses.id, businesses.categories)
-
-test2 <- head(businesses_SLO)
-
-categories <- businesses_SLO %>% 
-  select(businesses.id, businesses.categories) %>%
-  unnest() 
-
-categories_matrix <- categories %>%
-  spread(key = title, value = alias)
-
-categories_matrix
-
-categories_map <- data.frame(alias = unique(categories$alias), title = unique(categories$title))
-
-categories_map
-
-```
-
-```{r}
-
-check_category <- function(id, category) {
-  !categories_matrix %>%
-    filter(businesses.id == id) %>%
-    select(category) %>% 
-    is.na()
-}
-
-check_category("_3cAeuaKocR1L5nLJITs7Q", "American (Traditional)")
-```
-
-```{r}
-
-businesses_SLO %>% 
-  filter(sapply(businesses.id, check_category, category = "American (Traditional)"))
 ```
 
 Success! A future goal would be to speed up the data cleaning process to use on cities with larger datasets.
